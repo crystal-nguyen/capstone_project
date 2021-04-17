@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="author" content="Dashboard">
+  <meta name="keyword" content="Dashboard, Bootstrap, Admin, Template, Theme, Responsive, Fluid, Retina">
+  <title>UHD Molecular Analysis Capstone Demo</title>
+
+  <!-- Favicons -->
+  <link href="{% static '/img/favicon.png' %}" rel="icon">
+  <link href="{% static '/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Bootstrap core CSS -->
+  <link href="{% static '/lib/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <!--external css-->
+  <link href="{% static '/lib/font-awesome/css/font-awesome.css' %}" rel="stylesheet" />
+  <!-- Custom styles for this template -->
+  <link href="{% static '/css/style.css' %}" rel="stylesheet">
+  <link href="{% static '/css/style-responsive.css' %}" rel="stylesheet">
+  <!-- blueimp Gallery styles -->
+  <link rel="stylesheet" href="http://blueimp.github.io/Gallery/css/blueimp-gallery.min.css">
+  <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
+  <link rel="stylesheet" href="{% static '/lib/file-uploader/css/jquery.fileupload.css' %}">
+  <link rel="stylesheet" href="{% static '/lib/file-uploader/css/jquery.fileupload-ui.css' %}">
+  <!-- CSS adjustments for browsers with JavaScript disabled -->
+  <noscript>
+      <link rel="stylesheet" href="{% static '/lib/file-uploader/css/jquery.fileupload-noscript.css' %}">
+    </noscript>
+  <noscript>
+      <link rel="stylesheet" href="{% static '/lib/file-uploader/css/jquery.fileupload-ui-noscript.css' %}">
+    </noscript>
+
+</head>
+
+<body>
+  <section id="container">
+    <!-- **********************************************************************************************************************************************************
+        TOP BAR CONTENT & NOTIFICATIONS
+        *********************************************************************************************************************************************************** -->
+    <!--header start-->
+    <header class="header black-bg">
+      <div class="sidebar-toggle-box">
+        <div class="fa fa-bars tooltips" data-placement="right" data-original-title="Toggle Navigation"></div>
+      </div>
+      <!--logo start-->
+      <a href="index.html" class="logo"><b>CAPSTONE<span>2021</span></b></a>
+      <!--logo end-->
+      <div class="nav notify-row" id="top_menu">
+      </div>
+    </header>
+    <!--header end-->
+          <aside>
+      <div id="sidebar" class="nav-collapse ">
+        <!-- sidebar menu start-->
+        <ul class="sidebar-menu" id="nav-accordion">
+          <h5 class="centered">UHD Molecular Analysis Capstone</h5>
+          <li class="mt">
+            <a href="/demo/dashboard">
+              <i class="fa fa-dashboard"></i>
+              <span>Dashboard</span>
+              </a>
+          </li>
+
+          <li class="mt">
+              <a href='/demo/test' class="active">
+                  <i class="fa fa-calculator"></i>
+                  <span>Test New Data</span>
+              </a>
+          </li>
+        </ul>
+        <!-- sidebar menu end-->
+      </div>
+    </aside>
+    <!-- **********************************************************************************************************************************************************
+        MAIN SIDEBAR MENU
+        *********************************************************************************************************************************************************** -->
+    <!--sidebar start-->
+    <!-- **********************************************************************************************************************************************************
+        MAIN CONTENT
+        *********************************************************************************************************************************************************** -->
+    <!--main content start-->
+    <section id="main-content">
+      <section class="wrapper site-min-height">
+        <h3><i class="fa fa-angle-right"></i>Test New Data</h3>
+        <div class="col-lg-12">
+            <div class="form-panel">
+                <h3>Upload Data</h3><br/>
+                    <form method="post" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <h4>1. Choose an Image</h4>
+                            {% csrf_token %}
+                            <input type="file" name="image" id="image"> <br/>
+                        </div>
+                        <br/>
+                        <div class="form-group">
+                            <h4>2. Choose a CSV File</h4>
+                            {% csrf_token %}
+                            <input type="file" name="file" id="file"><br/>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-theme">Test</button>
+                            <button type="button" class="btn btn-theme04">Clear Files</button>
+                        </div>
+                    </form>
+            </div>
+            <div class="form-panel">
+                <div class="form-group">
+                    <h4>Test Results</h4>
+					<p id="osteo_response"></p>
+					<p id="histo_response"></p>
+					<button type="button" class="btn btn-theme" onclick="responseData()">View Results</button>
+                </div>
+            </div>
+        </div>
+      </section>
+      <!-- /wrapper -->
+    </section>
+    <!-- /MAIN CONTENT -->
+	
+	<script>
+		function responseData(){
+			var data = JSON.parse("{{data|escapejs}}");
+			if(data[0] == -1 || data[1] == -1){
+				document.getElementById('osteo_response').innerHTML = "No data scored";
+			}
+			else{
+				document.getElementById('osteo_response').innerHTML = data[0];
+				document.getElementById('histo_response').innerHTML = data[1];
+				data[0] = -1;
+				data[1] = -1;
+			}
+		}
+	</script>
+	
+    <!--main content end-->	
+    <!--footer start-->
+    <footer class="site-footer">
+      <div class="text-center">
+        <p>
+          &copy; Copyrights <strong>UHD Molecular Analysis Capstone</strong>. All Rights Reserved
+        </p>
+        <a href="file_upload.html#" class="go-top">
+          <i class="fa fa-angle-up"></i>
+          </a>
+      </div>
+    </footer>
+    <!--footer end-->
+  </section>
+  <!-- js placed at the end of the document so the pages load faster -->
+  <script src="{% static '/lib/jquery/jquery.min.js' %}"></script>
+  <script src="{% static '/lib/bootstrap/js/bootstrap.min.js' %}"></script>
+  <script class="include" type="text/javascript" src="{% static '/lib/jquery.dcjqaccordion.2.7.js' %}"></script>
+  <script src="{% static '/lib/jquery.scrollTo.min.js' %}"></script>
+  <script src="{% static '/lib/jquery.nicescroll.js' %}" type="text/javascript"></script>
+  <!--common script for all pages-->
+  <script src="{% static '/lib/common-scripts.js'%}"></script>
+  <!--script for this page-->
+</body>
+
+</html>
