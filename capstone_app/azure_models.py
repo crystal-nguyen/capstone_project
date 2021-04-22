@@ -4,6 +4,11 @@ import ssl
 import json
 import base64
 import pandas as pd
+import sys
+if sys.version_info[0] < 3:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 
 
 class AzureModels:
@@ -11,60 +16,47 @@ class AzureModels:
     def __init__(self):
         pass
 
-    def formatHistopathData(self, image_path):
+    def formatImageData(self, image):
         img = {}
 
         # Encode the image into bytes then readable ascii
-        with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-            ascii_string = encoded_string.decode('ascii')
+        encoded_string = base64.b64encode(image.read())
+        ascii_string = encoded_string.decode('ascii')
 
         # String that describes the encoded image
-        x = image_path.split(".")
-        file_extension = x[-1]
-        image_string = 'data:image/' + str(file_extension) + ";base64," + ascii_string
+        name, extension = os.path.splitext('testPNG.PNG')
+        extension = (str(extension).lower())[1:]
+        image_string = 'data:image/' + extension + ";base64," + ascii_string
 
         # Build the JSON object
         data = {'Inputs': {"WebServiceInput0": [{'image': image_string, 'id': "0", 'category': "has_tumor"}]},
                 'GlobalParameters': {}}
-        json_data = json.dumps(data)
         # print(json_data)
-        return json_data
+        return data
 
     # Pass in path to the csv file and the respective row to
     # test the model with
-    def formatOsteosarcomaData(self, csv):
-        # Read CSV file
-        df = pd.read_csv(csv)
+    def formatTabularData(self, csv):
 
-        # Parses column headers
-        headers = list(df.columns.values)
+        # convert file to StringIO
+        csv_io = StringIO(csv.read().decode('ISO-8859-1'))
 
-        # Ignore class label and useless headers
-        temp = headers[3:11]
-        temp.append(headers[13])
-        temp.extend(headers[15:-1])
-        headers = temp
-
+        # create dataframe
+        csv_df = pd.read_csv(csv_io)
         # Pull data at specified row
-        row_data = df.iloc[0].values
+        sample = csv_df.iloc[0].values
 
-        # Ignore class label and useless headers
-        row_data = row_data[3:-1]
-
-        # JSON string
-        data = {"data": []}
-        data_array = {}
-
-        for i in range(0, len(headers)):
-            # Fill in the column w/ respective row value
-            data_array.setdefault(headers[i], str(row_data[i]))
-        data["data"] = [data_array]
+        # build dictionary
+        data_dict = {}
+        for i in range(len(csv_df.columns)):
+            try:
+                data_dict[csv_df.columns[i]] = int(sample[i])
+            except:
+                data_dict[csv_df.columns[i]] = sample[i]
+        data = {"Inputs": {"input1": [data_dict], }, "GlobalParameters": {}}
 
         # Build the JSON object
-        json_data = json.dumps(data)
-        # print(json_data)
-        return json_data
+        return data
 
     def allowSelfSignedHttps(allowed):
         # bypass the server certificate verification on client side
@@ -73,13 +65,14 @@ class AzureModels:
 
     allowSelfSignedHttps(True)  # this line is needed if you use self-signed certificate in your scoring service.
 
-    def sendOsteoData(self, json_data):
+    def sendTabularData(self, json_data):
         # Create body of request using JSON
-        body = str.encode(json_data)
+        body = str.encode(json.dumps(json_data))
 
-        url = 'http://71f4100f-6fb1-434b-8192-fe31a645f92e.westus.azurecontainer.io/score'
-        api_key = ''
+        url = 'http://6276f964-4ea6-42e2-bed7-cbccc13f92c6.westus.azurecontainer.io/score'
+        api_key = 'VhaeYY8hwU42IBGgzaAIVRHwGHWYdm3n'  # Replace this with the API key for the web service
         headers = {'Content-Type': 'application/json', 'Authorization': ('Bearer ' + api_key)}
+
         req = urllib.request.Request(url, body, headers)
 
         # Sending the request to the endpoint
@@ -96,10 +89,9 @@ class AzureModels:
             print(json.loads(error.read().decode("utf8", 'ignore')))
             return None
 
-    def sendHistoData(self, json_data):
+    def sendImageData(self, json_data):
         # Create body of request using JSON
-        body = str.encode(json_data)
-
+        body = str.encode(json.dumps(json_data))
         # Default to the histopath data set
         url = 'http://104.45.231.141:80/api/v1/service/histopath-endpoint/score'
         api_key = '1ndWlDJMuzRU8Cpgf3NFD15jS0bEf93a'
@@ -119,44 +111,75 @@ class AzureModels:
             print(json.loads(error.read().decode("utf8", 'ignore')))
             return None
 
-    def consumeEndpoints(self, osteo_data, histo_data):
-        osteo_response = self.sendOsteoData(osteo_data)
-        histo_response = self.sendHistoData(histo_data)
-        return [osteo_response, histo_response]
+    def formatCombinedData(self, csv_response, image_response):
+        csv_json_obj = json.loads(csv_response)
+        image_json_obj = json.loads(image_response)
 
-    # Response[0] = osteo
-    # Response[1] = histo
-    def sanitizeResponses(self, responses):
-        # Sanitize body of result
-        osteo_response = responses[0]
-        histo_response = responses[1]
+        columns=['Image Scored Probabilities_has_tumor','Image Scored Probabilities_no_tumor', 'Tabular Scored Probabilities_has_tumor','Tabular Scored Probabilities_no_tumor','Actual Class']
+        csv_body = csv_json_obj["Results"]["WebServiceOutput0"][0]
+        csv_tumor = csv_body['Scored Probabilities_has_tumor']
+        csv_no_tumor = csv_body['Scored Probabilities_no_tumor']
 
-        # "{\"result\", [\"Non-Tumor\"]}"
-        osteo_split = osteo_response.split(":")
-        temp = osteo_split[1]
-        temp = temp.replace('"', '')
-        temp = temp.replace('[', '')
-        temp = temp.replace('\\', '')
+        image_body = image_json_obj["Results"]["WebServiceOutput0"][0]
+        image_tumor = image_body['Scored Probabilities_has_tumor']
+        image_no_tumor = image_body['Scored Probabilities_no_tumor']
 
-        # osteo_result = Non-Tumor
-        osteo_result = temp.rstrip('}]')
+        data = [image_tumor, image_no_tumor, csv_tumor, csv_no_tumor,'class']
+        combined_df = pd.DataFrame(columns=columns, data=[data])
 
-        # ["0", "Scored Probabilities_has_tumor"], [0.871647298336029, "Scored Probabilities_no_tumor"], [0.12835265696048737, "Scored Labels"], "has_tumor"}]}}
-        histo_split = histo_response.split(":")
-        histo_split = histo_split[4:]
+        result = {}
+        for i in range(len(combined_df.columns)):
+            result[combined_df.columns[i]] = combined_df.iloc[0][i]
 
-        histo_result = []
-        for i in range(0, len(histo_split)):
-            temp = histo_split[i].split(",")
-            histo_result.append(temp[0])
-            if len(temp) > 1:
-                histo_result.append(temp[1])
-        histo_result = histo_result[1:]
+        data = {"Inputs": {"WebServiceInput0": [result], },"GlobalParameters": {}}
 
-        # Cleans: "has_tumor"}]}}
-        temp = histo_result[-1].replace('}', '')
-        temp = temp.replace(']', '')
-        histo_result[-1] = temp
+        return data
 
-        # histo_result = "Scored Probabilities_has_tumor", 0.871647298336029, "Scored Probabilities_no_tumor", 0.12835265696048737, "Scored Labels", "has_tumor"
-        return [osteo_result, histo_result]
+    def sendCombinedData(self, json_data):
+        body = str.encode(json.dumps(json_data))
+
+        url = 'http://0352ffb7-e19c-4307-af73-7ed824ed1b39.westus.azurecontainer.io/score'
+        api_key = 'B1ndv3rJho7mIjFZypSWhmN3phyLuDCv'  # Replace this with the API key for the web service
+        headers = {'Content-Type': 'application/json', 'Authorization': ('Bearer ' + api_key)}
+
+        req = urllib.request.Request(url, body, headers)
+
+        try:
+            response = urllib.request.urlopen(req)
+            result = response.read()
+            result = result.decode('ascii')
+            return result
+        except urllib.error.HTTPError as error:
+            print("The request failed with status code: " + str(error.code))
+
+            # Print the headers - they include the requert ID and the timestamp, which are useful for debugging the failure
+            print(error.info())
+            print(json.loads(error.read().decode("utf8", 'ignore')))
+
+    def tabularModel(self, csv_file):
+
+        # format data
+        csv_json = self.formatTabularData(csv_file)
+        csv_response = self.sendTabularData(csv_json)
+        return csv_response
+
+    def imageModel(self, image_file):
+
+        # format data
+        image_json = self.formatImageData(image_file)
+        image_response = self.sendImageData(image_json)
+        return image_response
+
+    def combinedModel(self, csv_file, image_file):
+
+        #get the individual model responses
+        tabular_response = self.tabularModel(csv_file)
+        image_response = self.imageModel(image_file)
+        combined_json = self.formatCombinedData(tabular_response, image_response)
+        combined_response = self.sendCombinedData(combined_json)
+        combined_response_dict = json.loads(combined_response)
+        result = combined_response_dict["Results"]["WebServiceOutput0"][0]["Scored Labels"]
+        return result
+
+
+

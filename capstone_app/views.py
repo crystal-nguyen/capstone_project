@@ -4,7 +4,8 @@ from .azure_models import *
 from os import *
 from capstone_project.settings import BASE_DIR
 from json import dumps
-
+import pandas as pd
+from io import StringIO
 
 # Create your views here.
 
@@ -18,25 +19,20 @@ def dashboard(request):
 
 
 def test(request):
-    data = [-1, -1]
-
     if request.method == "POST":
-        # get file names
+        # get file contents
         uploaded_image = request.FILES["image"]
         uploaded_csv = request.FILES["file"]
 
-        print(uploaded_image)
-        print(uploaded_csv)
+        models = AzureModels()
+        data = models.combinedModel(uploaded_csv, uploaded_image)
+        if(data == 'no_tumor'):
+            data = "Sample indicates non-cancerous"
+        else:
+            data = "Sample indicates cancerous"
 
-        azure_models = AzureModels()
-        osteo_data = azure_models.formatOsteosarcomaData(uploaded_csv.name)
-        histo_data = azure_models.formatHistopathData(uploaded_image.name)
-
-        responses = azure_models.consumeEndpoints(osteo_data, histo_data)
-
-        data = azure_models.sanitizeResponses(responses)
-        data = dumps(data)
+        return render(request, 'test.html', {"result": data})
 
     # main page to test the model
     # this is where we will call the function from azure_models.py
-    return render(request, 'test.html', {"data": data})
+    return render(request, 'test.html')
