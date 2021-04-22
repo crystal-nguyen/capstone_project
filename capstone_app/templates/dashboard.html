@@ -82,6 +82,9 @@
             </div>
             <div id="performance_metrics">
             </div>
+          </div>
+        </div>
+
             <!--custom chart end-->
             <div class="row mt">
               <!-- SERVER STATUS PANELS -->
@@ -126,9 +129,14 @@
                 <!--  /darkblue panel -->
               </div>
               <!-- /col-md-4 -->
-              <div class="col-md-4 col-sm-4 mb">
+            <!-- /row -->
+
+              <!-- /col-md-8  -->
+            </div>
+            <div class="row mt">
+                 <div class="col-md-4 col-sm-4 mb">
                 <!-- REVENUE PANEL -->
-                <div class="green-panel pn">
+                <div class="green-panel pn" style="height: 550px; width:1000px;">
                   <div class="green-header">
                     <h5>FISHER'S DETERMINANT F1</h5>
                   </div>
@@ -136,13 +144,6 @@
                   </div>
                 </div>
               </div>
-              <!-- /col-md-4 -->
-            </div>
-            <!-- /row -->
-
-              <!-- /col-md-8  -->
-            </div>
-
 
               <!-- /col-md-4 -->
             </div>
@@ -168,9 +169,17 @@
     <footer class="site-footer">
       <div class="text-center">
         <p>
-          &copy; Copyrights <strong>UHD Molecular Analysis Capstone</strong>. All Rights Reserved
+          &copy; Copyrights <strong>Dashio</strong>. All Rights Reserved
         </p>
-      </div>
+        <div class="credits">
+          <!--
+            You are NOT allowed to delete the credit link to TemplateMag with free version.
+            You can delete the credit link only if you bought the pro version.
+            Buy the pro version with working PHP/AJAX contact form: https://templatemag.com/dashio-bootstrap-admin-template/
+            Licensing information: https://templatemag.com/license/
+          -->
+          Created with Dashio template by <a href="https://templatemag.com/">TemplateMag</a>
+        </div>
     </footer>
     <!--footer end-->
   </section>
@@ -194,6 +203,7 @@
       $(function(){
           $("#performance_metrics").load("{% static '/graphs/preformance_metrics.html' %}");
           $("#f1").load("{% static '/graphs/f1.html' %}");
+          document.getElementById('f1').setAttribute("style","height:50px");
       });
   </script>
 

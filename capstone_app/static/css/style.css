@@ -996,6 +996,7 @@ PANELS CONFIGURATIONS
 .green-panel {
 	text-align: center;
 	background: #4ECDC4;
+    height: 300px;
 }
 .green-panel .green-header {
 	background: #43b1a9;
