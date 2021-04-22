@@ -78,9 +78,9 @@
           <div class="col-lg-9 main-chart">
             <!--CUSTOM CHART START -->
             <div class="border-head">
-              <h3>CLUSTER ANALYSIS</h3>
+              <h3>PERFORMANCE METRICS</h3>
             </div>
-            <div id="graph1">
+            <div id="performance_metrics">
             </div>
             <!--custom chart end-->
             <div class="row mt">
@@ -88,16 +88,16 @@
               <div class="col-md-4 col-sm-4 mb">
                 <div class="grey-panel pn donut-chart">
                   <div class="grey-header">
-                    <h5>MODEL ACCURACY</h5>
+                    <h5>OVERALL MODEL ACCURACY</h5>
                   </div>
                   <canvas id="serverstatus01" height="120" width="120"></canvas>
                   <script>
                     var doughnutData = [{
-                        value: 70,
-                        color: "#FF6B6B"
+                        value: 96,
+                        color: "#ff6b6b"
                       },
                       {
-                        value: 30,
+                        value: 4,
                         color: "#fdfdfd"
                       }
                     ];
@@ -108,7 +108,7 @@
                       <p><br/>Accuracy:</p>
                     </div>
                     <div class="col-sm-6 col-xs-6">
-                      <h2>85%</h2>
+                      <h2>96%</h2>
                     </div>
                   </div>
                 </div>
@@ -119,29 +119,9 @@
                 <div class="darkblue-panel pn">
                   <div class="darkblue-header">
                     <h5>CONFUSION MATRIX</h5>
+                      <img src="{% static '/graphs/confusion_matrix.png' %}" alt="Confusion matrix" width="280px" height="200px">
                   </div>
-                  <canvas id="serverstatus02" height="120" width="120"></canvas>
-                  <script>
-                    var doughnutData = [{
-                        value: 60,
-                        color: "#1c9ca7"
-                      },
-                      {
-                        value: 40,
-                        color: "#f68275"
-                      }
-                    ];
-                    var myDoughnut = new Chart(document.getElementById("serverstatus02").getContext("2d")).Doughnut(doughnutData);
-                  </script>
-                  <p>April 17, 2014</p>
-                  <footer>
-                    <div class="pull-left">
-                      <h5><i class="fa fa-hdd-o"></i> 17 GB</h5>
-                    </div>
-                    <div class="pull-right">
-                      <h5>60% Used</h5>
-                    </div>
-                  </footer>
+
                 </div>
                 <!--  /darkblue panel -->
               </div>
@@ -150,12 +130,10 @@
                 <!-- REVENUE PANEL -->
                 <div class="green-panel pn">
                   <div class="green-header">
-                    <h5>REVENUE</h5>
+                    <h5>FISHER'S DETERMINANT F1</h5>
                   </div>
-                  <div class="chart mt">
-                    <div class="sparkline" data-type="line" data-resize="true" data-height="75" data-width="90%" data-line-width="1" data-line-color="#fff" data-spot-color="#fff" data-fill-color="" data-highlight-line-color="#fff" data-spot-radius="4" data-data="[200,135,667,333,526,996,564,123,890,464,655]"></div>
+                  <div id="f1" style="position:relative; height:20px; margin: auto;">
                   </div>
-                  <p class="mt"><b>$ 17,980</b><br/>Month Income</p>
                 </div>
               </div>
               <!-- /col-md-4 -->
@@ -214,7 +192,8 @@
   <script src="{% static '/lib/jquery/jquery.js' %}"></script>
   <script>
       $(function(){
-          $("#graph1").load("{% static '/graphs/graph1.html' %}");
+          $("#performance_metrics").load("{% static '/graphs/preformance_metrics.html' %}");
+          $("#f1").load("{% static '/graphs/f1.html' %}");
       });
   </script>
 
