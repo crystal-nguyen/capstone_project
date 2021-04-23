@@ -1710,7 +1710,16 @@ PANELS CONFIGURATIONS
   filter: alpha(opacity=100);
 }
 
+table{
+    border-collapse: collapse;
+    border: 2px black solid;
+    font: 12px sans-serif;
+}
 
+td{
+    border: 1px black solid;
+    padding: 5px;
+}
 
 /* EZ Checklist */
 .ez-checkbox {
