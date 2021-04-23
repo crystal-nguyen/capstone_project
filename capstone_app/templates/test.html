@@ -107,11 +107,20 @@
                     </form>
             </div>
             <div class="form-panel">
+                <h3>View A Sample</h3>
+                    <img src="{% static '/img/demo_image.png' %}">
+                    <br>
+                    <br>
+                     <div style="max-width:980px; overflow-x:scroll;">
+                            {{ loaded_data | safe }}
+                    </div>
+                    <h4>Model Output</h4>
+                    <h5>{{ result }}</h5>
+            </div>
+            <div class="form-panel">
                 <div class="form-group">
                     <h4>Test Results</h4>
-                    <h5>{{ result }}</h5>
-					<p id="osteo_response"></p>
-					<p id="histo_response"></p>
+                    <h5>{{ result_test}}</h5>
                 </div>
             </div>
         </div>
@@ -119,22 +128,6 @@
       <!-- /wrapper -->
     </section>
     <!-- /MAIN CONTENT -->
-	
-	<script>
-		function responseData(){
-			var data = JSON.parse("{{data|escapejs}}");
-			if(data[0] == -1 || data[1] == -1){
-				document.getElementById('osteo_response').innerHTML = "No data scored";
-			}
-			else{
-				document.getElementById('osteo_response').innerHTML = data[0];
-				document.getElementById('histo_response').innerHTML = data[1];
-				data[0] = -1;
-				data[1] = -1;
-			}
-		}
-	</script>
-	
     <!--main content end-->	
     <!--footer start-->
     <footer class="site-footer">
