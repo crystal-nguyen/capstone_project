@@ -5,7 +5,6 @@ from capstone_project.settings import BASE_DIR
 from json import dumps
 import pandas as pd
 from io import StringIO
-from django_tables2.tables import Table
 
 # Create your views here.
 
